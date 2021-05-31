@@ -6,13 +6,11 @@ import android.view.Menu
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
 import android.widget.SearchView
+import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_root.*
-import kotlinx.android.synthetic.main.layout_bottombar.*
-import kotlinx.android.synthetic.main.layout_submenu.*
 import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.databinding.ActivityRootBinding
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.viewmodels.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
@@ -21,20 +19,26 @@ import ru.skillbranch.skillarticles.viewmodels.ViewModelFactory
 
 class RootActivity : AppCompatActivity() {
 
+    private val viewModel: ArticleViewModel by viewModels{ ViewModelFactory(params = "0")}
+    private lateinit var vb: ActivityRootBinding
+    private val vbBottomBar
+    get() = vb.bottombar.binding
+    private val vbSubMenu
+    get() = vb.submenu.binding
+
     private var searchView: SearchView? = null
-    private lateinit var viewModel: ArticleViewModel
     private var isSearch = false
     private var searchQuery = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_root)
+        vb = ActivityRootBinding.inflate(layoutInflater)
+        setContentView(vb.root)
+
         setupToolbar()
         setupButtonbar()
         setupSubmenu()
 
-        val vmFactory = ViewModelFactory("0")
-        viewModel = ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
         viewModel.observeState(this) {
             renderUi(it)
         }
@@ -44,8 +48,8 @@ class RootActivity : AppCompatActivity() {
     }
 
     private fun renderNotification(notify: Notify) {
-        val snackbar = Snackbar.make(coordinator_container, notify.message, Snackbar.LENGTH_SHORT)
-                .setAnchorView(bottombar)
+        val snackbar = Snackbar.make(vb.coordinatorContainer, notify.message, Snackbar.LENGTH_SHORT)
+                .setAnchorView(vb.bottombar)
                 .setActionTextColor(getColor(R.color.color_accent_dark))
 
         when (notify) {
@@ -74,45 +78,45 @@ class RootActivity : AppCompatActivity() {
     }
 
     private fun setupSubmenu() {
-        btn_text_up.setOnClickListener { viewModel.handleUpText() }
-        btn_text_down.setOnClickListener { viewModel.handleDownText() }
-        switch_mode.setOnClickListener { viewModel.handleNightMode() }
+        vbSubMenu.btnTextUp.setOnClickListener { viewModel.handleUpText() }
+        vbSubMenu.btnTextDown.setOnClickListener { viewModel.handleDownText() }
+        vbSubMenu.switchMode.setOnClickListener { viewModel.handleNightMode() }
     }
 
     private fun setupButtonbar() {
-        btn_like.setOnClickListener { viewModel.handleLike() }
-        btn_bookmark.setOnClickListener { viewModel.handleBookmark() }
-        btn_share.setOnClickListener { viewModel.handleShare() }
-        btn_settings.setOnClickListener { viewModel.handleToggleMenu() }
+        vbBottomBar.btnLike.setOnClickListener { viewModel.handleLike() }
+        vbBottomBar.btnBookmark.setOnClickListener { viewModel.handleBookmark() }
+        vbBottomBar.btnShare.setOnClickListener { viewModel.handleShare() }
+        vbBottomBar.btnSettings.setOnClickListener { viewModel.handleToggleMenu() }
     }
 
     private fun renderUi(data: ArticleState) {
-        btn_settings.isChecked = data.isShowMenu
-        if (data.isShowMenu) submenu.open() else submenu.close()
+        vbBottomBar.btnSettings.isChecked = data.isShowMenu
+        if (data.isShowMenu) vb.submenu.open() else vb.submenu.close()
 
-        btn_like.isChecked = data.isLike
-        btn_bookmark.isChecked = data.isBookmark
+        vbBottomBar.btnLike.isChecked = data.isLike
+        vbBottomBar.btnBookmark.isChecked = data.isBookmark
 
-        switch_mode.isChecked = data.isDarkMode
+        vbSubMenu.switchMode.isChecked = data.isDarkMode
         delegate.localNightMode =
                 if (data.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
 
         if (data.isBigText) {
-            tv_text_content.textSize = 18f
-            btn_text_up.isChecked = true
-            btn_text_down.isChecked = false
+            vb.tvTextContent.textSize = 18f
+            vbSubMenu.btnTextUp.isChecked = true
+            vbSubMenu.btnTextDown.isChecked = false
         } else {
-            tv_text_content.textSize = 14f
-            btn_text_up.isChecked = false
-            btn_text_down.isChecked = true
+            vb.tvTextContent.textSize = 14f
+            vbSubMenu.btnTextUp.isChecked = false
+            vbSubMenu.btnTextDown.isChecked = true
         }
 
-        tv_text_content.text =
+        vb.tvTextContent.text =
                 if (data.isLoadingContent) "loading" else data.content.first() as String
 
-        toolbar.title = data.title ?: "loading"
-        toolbar.subtitle = data.category ?: "loading"
-        if (data.categoryIcon != null) toolbar.logo = getDrawable(data.categoryIcon as Int)
+        vb.toolbar.title = data.title ?: "loading"
+        vb.toolbar.subtitle = data.category ?: "loading"
+        if (data.categoryIcon != null) vb.toolbar.logo = getDrawable(data.categoryIcon as Int)
 
         isSearch = data.isSearch
         searchQuery = data.searchQuery ?: ""
@@ -129,9 +133,9 @@ class RootActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        setSupportActionBar(toolbar)
+        setSupportActionBar(vb.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        val logo = if (toolbar.childCount > 2) toolbar.getChildAt(2) as ImageView else null
+        val logo = if (vb.toolbar.childCount > 2) vb.toolbar.getChildAt(2) as ImageView else null
         logo?.scaleType = ImageView.ScaleType.CENTER_CROP
         val lp = logo?.layoutParams as? Toolbar.LayoutParams
         lp?.let {
