@@ -30,7 +30,7 @@ class ArticleSubmenu @JvmOverloads constructor(
     private var centerY: Float = context.dpToPx(96)
 
     init {
-        binding = LayoutSubmenuBinding.inflate(LayoutInflater.from(context),this, true)
+        binding = LayoutSubmenuBinding.inflate(LayoutInflater.from(context),this)
         //add material bg for handle elevation and color surface
         val materialBg = MaterialShapeDrawable.createWithElevationOverlay(context)
         materialBg.elevation = elevation
