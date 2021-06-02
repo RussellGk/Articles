@@ -195,6 +195,11 @@ data class ArticleState(
     }
 }
 
+fun ArticleState.toBottombarData() =
+    BottombarData(isLike, isBookmark, isShowMenu, isSearch, searchResults.size, searchPosition)
+
+fun ArticleState.toSubmenuData() = SubmenuData(isShowMenu, isBigText, isDarkMode)
+
 data class BottombarData(
     val isLike: Boolean = false, //отмечено как Like
     val isBookmark: Boolean = false, //в закладках
