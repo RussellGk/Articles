@@ -102,6 +102,11 @@ abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: Save
     }
 }
 
+interface VMState:Serializable {
+    fun toBundle() : Bundle
+    fun fromBundle(bundle:Bundle): VMState?
+}
+
 class ViewModelFactory(owner: SavedStateRegistryOwner, val params: String) : AbstractSavedStateViewModelFactory(owner, bundleOf()) {
     override fun <T : ViewModel?> create(
         key: String,
@@ -161,9 +166,4 @@ sealed class Notify(val message: String) {
         val errLabel: String?,
         val errHandler: (() -> Unit)?
     ) : Notify(msg)
-}
-
-interface VMState:Serializable {
-    fun toBundle() : Bundle
-    fun fromBundle(bundle:Bundle): VMState?
 }
