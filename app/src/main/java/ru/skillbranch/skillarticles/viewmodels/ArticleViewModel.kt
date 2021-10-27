@@ -9,11 +9,15 @@ import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
 import ru.skillbranch.skillarticles.extensions.*
+import ru.skillbranch.skillarticles.markdown.MarkdownParser
+
+
 
 class ArticleViewModel(private val articleId: String, savedStateHandle: SavedStateHandle) :
     BaseViewModel<ArticleState>(ArticleState(), savedStateHandle),
     IArticleViewModel {
     private val repository = ArticleRepository
+    private var clearContent: String? = null
 
     init {
 
@@ -58,18 +62,22 @@ class ArticleViewModel(private val articleId: String, savedStateHandle: SavedSta
         }
     }
 
-    override fun getArticleContent(): LiveData<List<String>?> {
+    //load text from network
+    override fun getArticleContent(): LiveData<String?> {
         return repository.loadArticleContent(articleId)
     }
 
+    //load data from db
     override fun getArticleData(): LiveData<ArticleData?> {
         return repository.getArticle(articleId)
     }
 
+    //load data from db
     override fun getArticlePersonalInfo(): LiveData<ArticlePersonalInfo?> {
         return repository.loadArticlePersonalInfo(articleId)
     }
 
+    //app settings
     override fun handleNightMode() {
         val settings = currentState.toAppSettings()
         repository.updateSettings(settings.copy(isDarkMode = !settings.isDarkMode))
@@ -123,7 +131,8 @@ class ArticleViewModel(private val articleId: String, savedStateHandle: SavedSta
 
     override fun handleSearch(query: String?) {
         query ?: return
-        val result = currentState.content.firstOrNull().indexesOf(query)
+        if (clearContent == null) clearContent = MarkdownParser.clear(currentState.content)
+        val result = clearContent.indexesOf(query)
             .map { it to it + query.length }
         updateState { it.copy(searchQuery = query, searchResults = result) }
     }
@@ -157,18 +166,18 @@ data class ArticleState(
     val date: String? = null, //дата публикации
     val author: Any? = null, //автор статьи
     val poster: String? = null, //обложка статьи
-    val content: List<String> = emptyList(), //контент
+    val content: String = "Loading", //контент
     val reviews: List<Any> = emptyList() //комментарии
 ) : VMState {
     override fun toBundle(): Bundle {
-        val map = copy(content = emptyList(), isLoadingContent = true)
+        val map = copy(content = "Loading", isLoadingContent = true)
             .asMap()
             .toList()
             .toTypedArray()
         return bundleOf(*map)
     }
 
-    override fun fromBundle(bundle: Bundle): VMState? {
+    override fun fromBundle(bundle: Bundle): VMState {
         val map = bundle.keySet().associateWith { bundle[it] }
         return copy(
             isAuth = map["isAuth"] as Boolean,
@@ -190,7 +199,7 @@ data class ArticleState(
             date = map["date"] as String,
             author = map["author"] as Any,
             poster = map["poster"] as String,
-            content = map["content"] as List<String>,
+            content = map["content"] as String,
             reviews = map["reviews"] as List<Any>
         )
     }

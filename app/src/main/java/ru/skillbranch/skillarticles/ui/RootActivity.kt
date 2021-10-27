@@ -6,6 +6,7 @@ import android.os.PersistableBundle
 import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.method.LinkMovementMethod
 import android.text.method.ScrollingMovementMethod
 import android.view.Menu
 import android.view.MenuItem
@@ -16,6 +17,7 @@ import androidx.activity.viewModels
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.text.getSpans
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
@@ -23,6 +25,7 @@ import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.databinding.ActivityRootBinding
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
+import ru.skillbranch.skillarticles.markdown.MarkdownBuilder
 import ru.skillbranch.skillarticles.ui.custom.SearchFocusSpan
 import ru.skillbranch.skillarticles.ui.custom.SearchSpan
 import ru.skillbranch.skillarticles.ui.delegates.AttrValue
@@ -31,10 +34,9 @@ import ru.skillbranch.skillarticles.viewmodels.*
 
 class RootActivity : AppCompatActivity(), IArticleView {
     private val vb: ActivityRootBinding by viewBinding(ActivityRootBinding::inflate)
-
+    private val viewModel: ArticleViewModel by viewModels { viewModelFactory }
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var viewModelFactory: ViewModelProvider.Factory = ViewModelFactory(this, "0")
-    private val viewModel: ArticleViewModel by viewModels { viewModelFactory }
     private val vbBottomBar
         get() = vb.bottombar.binding
     private val vbSubmenu
@@ -124,7 +126,7 @@ class RootActivity : AppCompatActivity(), IArticleView {
     }
 
     override fun renderBotombar(data: BottombarData) {
-        with(vbBottomBar) {
+        with(vbBottomBar){
             btnLike.isChecked = data.isLike
             btnBookmark.isChecked = data.isBookmark
             btnSettings.isChecked = data.isShowMenu
@@ -134,7 +136,7 @@ class RootActivity : AppCompatActivity(), IArticleView {
     }
 
     override fun renderSubmenu(data: SubmenuData) {
-        with(vbSubmenu) {
+        with(vbSubmenu){
             switchMode.isChecked = data.isDarkMode
             btnTextDown.isChecked = !data.isBigText
             btnTextUp.isChecked = data.isBigText
@@ -146,25 +148,25 @@ class RootActivity : AppCompatActivity(), IArticleView {
         delegate.localNightMode =
             if (data.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
-        with(vb.tvTextContent) {
-            textSize = if (data.isBigText) 18f else 14f
-            movementMethod = ScrollingMovementMethod()
-            val content = if (data.isLoadingContent) "loading" else data.content.first()
-            if (text.toString() == content) return@with
-            setText(content, TextView.BufferType.SPANNABLE)
+        with(vb.tvTextContent){
+            textSize = if(data.isBigText) 18f else 14f
+            movementMethod = LinkMovementMethod()// for scroll and handle link click
+            MarkdownBuilder(context)
+                .markdownToSpan(data.content)
+                .run { setText(this, TextView.BufferType.SPANNABLE) }
         }
 
-        with(vb.toolbar) {
+        with(vb.toolbar){
             title = data.title ?: "loading"
             subtitle = data.category ?: "loading"
-            if (data.categoryIcon != null) logo = getDrawable(data.categoryIcon as Int)
+            if (data.categoryIcon != null) logo = ContextCompat.getDrawable(context, data.categoryIcon as Int)
         }
 
         if (data.isLoadingContent) return
-        if (data.isSearch) {
+        if (data.isSearch){
             renderSearchResult(data.searchResults)
             renderSearchPosition(data.searchPosition)
-        } else clearSearchResult()
+        }else clearSearchResult()
     }
 
     override fun setupToolbar() {
@@ -202,7 +204,7 @@ class RootActivity : AppCompatActivity(), IArticleView {
         val spans = content.getSpans<SearchSpan>()
         content.getSpans<SearchFocusSpan>()
             .forEach { content.removeSpan(it) }
-        if (spans.isNotEmpty()) {
+        if (spans.isNotEmpty()){
             val result = spans[searchPosition]
             Selection.setSelection(content, content.getSpanStart(result))
             content.setSpan(
@@ -222,7 +224,7 @@ class RootActivity : AppCompatActivity(), IArticleView {
     }
 
     override fun showSearchBar(resultsCount: Int, searchPosition: Int) {
-        with(vb.bottombar) {
+        with(vb.bottombar){
             setSearchState(true)
             setSearchInfo(resultsCount, searchPosition)
         }
@@ -230,7 +232,7 @@ class RootActivity : AppCompatActivity(), IArticleView {
     }
 
     override fun hideSearchBar() {
-        with(vb.bottombar) {
+        with(vb.bottombar){
             setSearchState(false)
         }
         vb.scroll.setMarginOptionally(bottom = dpToIntPx(0))
@@ -241,7 +243,7 @@ class RootActivity : AppCompatActivity(), IArticleView {
         val menuItem = menu?.findItem(R.id.action_search)
 
         searchView = (menuItem?.actionView as? SearchView)!!
-        searchView.queryHint = "Search"
+        searchView.queryHint = getString(R.string.search)
 
         if (viewModel.currentState.isSearch) {
             menuItem.expandActionView()
