@@ -1,13 +1,21 @@
 package ru.skillbranch.skillarticles.markdown.spans
 
 import android.graphics.Canvas
+import android.graphics.DashPathEffect
 import android.graphics.Paint
+import android.graphics.Path
 import android.text.style.ReplacementSpan
+import androidx.annotation.VisibleForTesting
 
 class UnderlineSpan( //TODO Stub fix it later
     private val underlineColor: Int,
     dotWidth: Float = 6f
 ) : ReplacementSpan() {
+    private var textWidth = 0
+    private val dashs = DashPathEffect(floatArrayOf(dotWidth, dotWidth), 0f)
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    var path = Path()
+
     override fun getSize(
         paint: Paint,
         text: CharSequence?,
