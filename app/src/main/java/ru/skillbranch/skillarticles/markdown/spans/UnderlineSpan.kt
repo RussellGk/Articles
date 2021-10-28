@@ -4,7 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.style.ReplacementSpan
 
-class UnderlineSpan(
+class UnderlineSpan( //TODO Stub fix it later
     private val underlineColor: Int,
     dotWidth: Float = 6f
 ) : ReplacementSpan() {
@@ -15,7 +15,7 @@ class UnderlineSpan(
         end: Int,
         fm: Paint.FontMetricsInt?
     ): Int {
-       return 0
+        return 0
     }
 
     override fun draw(
