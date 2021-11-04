@@ -5,11 +5,11 @@ import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.local.User
 import ru.skillbranch.skillarticles.viewmodels.ArticleState
 
-fun ArticleState.toAppSettings(): AppSettings {
+fun ArticleState.toAppSettings(): AppSettings{
     return AppSettings(isDarkMode, isBigText)
 }
 
-fun ArticleState.toArticlePersonalInfo(): ArticlePersonalInfo {
+fun ArticleState.toArticlePersonalInfo(): ArticlePersonalInfo{
     return ArticlePersonalInfo(isLike, isBookmark)
 }
 
@@ -45,3 +45,13 @@ fun User.asMap(): Map<String, Any?> = mapOf(
     "respect"  to respect,
     "about"  to about
 )
+
+fun List<Pair<Int, Int>>.groupByBounds(bounds: List<Pair<Int, Int>>): List<MutableList<Pair<Int, Int>>> {
+    return bounds.fold(mutableListOf<MutableList<Pair<Int, Int>>>()){acc, pair ->
+        val res = this.filter {
+            it.first >= pair.first && it.second <= pair.second
+        }.toMutableList()
+        acc.add(res)
+        acc
+    }
+}

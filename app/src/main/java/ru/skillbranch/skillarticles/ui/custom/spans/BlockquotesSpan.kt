@@ -1,11 +1,13 @@
-package ru.skillbranch.skillarticles.markdown.spans
+package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.Layout
+import android.text.Spanned
 import android.text.style.LeadingMarginSpan
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
+import ru.skillbranch.skillarticles.extensions.getLineBottomWithoutPadding
 
 class BlockquotesSpan (
     @Px
@@ -31,14 +33,14 @@ class BlockquotesSpan (
             lineStart: Int,
             lineEnd: Int,
             isFirstLine: Boolean,
-            layout: Layout?
+            layout: Layout
         ) {
             paint.withCustomColor {
                canvas.drawLine(
                     quoteWidth / 2f,
-                    lineTop.toFloat(),
+                   if (!isFirstLine || (text as Spanned).getSpans(lineStart.dec(), lineStart.dec(), BlockquotesSpan::class.java).isNotEmpty()) layout.getLineBottomWithoutPadding(layout.getLineForOffset(lineStart.dec())).toFloat() else lineTop.toFloat(),
                     quoteWidth / 2f,
-                    lineBottom.toFloat(),
+                   layout.getLineBottomWithoutPadding(layout.getLineForOffset(lineEnd)).toFloat(),
                     paint
                 )
             }

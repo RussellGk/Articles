@@ -1,4 +1,4 @@
-package ru.skillbranch.skillarticles.markdown.spans
+package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
 import android.graphics.DashPathEffect
@@ -33,7 +33,7 @@ class IconLinkSpan(
         if (fm != null){
             iconSize = fm.descent - fm.ascent
         }
-        if (iconSize !=0) {
+        if (iconSize != 0) {
             linkDrawable.setBounds(0,0, iconSize, iconSize)// set drawable bounds as linen height
             textWidth = paint.measureText(text.toString(), start, end)
         }
@@ -54,17 +54,17 @@ class IconLinkSpan(
         val textStart = x + iconSize + gap
         paint.forLine {
             path.reset()
-            path.moveTo(textStart, bottom.toFloat())
-            path.lineTo(textStart + textWidth, bottom.toFloat())
+            path.moveTo(textStart, y + paint.descent())
+            path.lineTo(textStart + textWidth, y + paint.descent())
             canvas.drawPath(path, paint)
         }
         canvas.save() //save canvas position
-        val transY = (bottom - linkDrawable.bounds.bottom.toFloat()) //translate icon to line position
+        val transY = (y + paint.descent() - linkDrawable.bounds.bottom.toFloat()) //translate icon to line position
         canvas.translate(x + gap/2f, transY)
         linkDrawable.draw(canvas) //draw icon
         canvas.restore() // restore canvas position
         paint.forText {
-            canvas.drawText(text ,start, end,textStart,y.toFloat(), paint)
+            canvas.drawText(text, start, end, textStart, y.toFloat(), paint)
         }
     }
 

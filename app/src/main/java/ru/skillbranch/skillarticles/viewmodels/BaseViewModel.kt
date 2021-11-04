@@ -8,7 +8,8 @@ import androidx.core.os.bundleOf
 import androidx.savedstate.SavedStateRegistryOwner
 import java.io.Serializable
 
-abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: SavedStateHandle) : ViewModel() where T : VMState {
+abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: SavedStateHandle) :
+    ViewModel() where T : VMState {
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val notifications = MutableLiveData<Event<Notify>>()
 
@@ -67,7 +68,11 @@ abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: Save
      * вспомогательная функция, позволяющая наблюдать за изменениями части стейта ViewModel
      * выражение обрабатывающее изменение текущего стостояния
      */
-    fun <D> observeSubState(owner: LifecycleOwner, transform:(T) ->  D, onChanged: (subState: D) -> Unit) {
+    fun <D> observeSubState(
+        owner: LifecycleOwner,
+        transform: (T) -> D,
+        onChanged: (subState: D) -> Unit
+    ) {
         state
             .map(transform)
             .distinctUntilChanged()
@@ -97,17 +102,18 @@ abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: Save
         }
     }
 
-    fun saveState(){
+    fun saveState() {
         savedStateHandle.set("state", currentState)
     }
 }
 
-interface VMState:Serializable {
-    fun toBundle() : Bundle
-    fun fromBundle(bundle:Bundle): VMState?
+public interface VMState : Serializable {
+    fun toBundle(): Bundle
+    fun fromBundle(bundle: Bundle): VMState?
 }
 
-class ViewModelFactory(owner: SavedStateRegistryOwner, val params: String) : AbstractSavedStateViewModelFactory(owner, bundleOf()) {
+class ViewModelFactory(owner: SavedStateRegistryOwner, val params: String) :
+    AbstractSavedStateViewModelFactory(owner, bundleOf()) {
     override fun <T : ViewModel?> create(
         key: String,
         modelClass: Class<T>,

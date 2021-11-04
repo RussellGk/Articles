@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Articles</string>
     <string name="search">Search</string>
+    <string name="dark_mode">Темный режим</string>
+    <string name="not_found">Not found</string>
+    <string name="loading">Loading...</string>
 </resources>

@@ -21,3 +21,12 @@ fun View.setMarginOptionally(
     this.layoutParams = lp
 
 }
+
+
+fun View.setPaddingOptionally(start:Int = this.paddingStart,
+                              top:Int = this.paddingTop,
+                              end:Int = this.paddingEnd,
+                              bottom:Int = this.paddingBottom,
+){
+    this.setPadding(start,top,end,bottom)
+}

@@ -1,4 +1,4 @@
-package ru.skillbranch.skillarticles.markdown.spans
+package ru.skillbranch.skillarticles.ui.custom.spans
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -41,6 +41,11 @@ class HeaderSpan(
         6 to 0.85f
     )
 
+    var topExtraPadding = 0
+    var bottomExtraPadding = 0
+    lateinit var firstLineBounds: kotlin.ranges.IntRange
+    lateinit var lastLineBounds: kotlin.ranges.IntRange
+
     override fun chooseHeight(
         text: CharSequence?,
         start: Int,
@@ -58,6 +63,8 @@ class HeaderSpan(
         if (spanStart == start){
             originAscent = fm.ascent
             fm.ascent = (fm.ascent - marginTop).toInt()
+            topExtraPadding = marginTop.toInt()
+            firstLineBounds = start..end.dec()
         }else{
             fm.ascent = originAscent
         }
@@ -65,7 +72,10 @@ class HeaderSpan(
         // line break +1 character
         if (spanEnd  == end.dec()){
             val originHeight = fm.descent - originAscent
-            fm.descent = (originHeight * linePadding + marginBottom).toInt()
+            val originDescent = fm.descent
+            fm.descent = (originHeight*linePadding + marginBottom).toInt()
+            bottomExtraPadding = fm.descent - originDescent
+            lastLineBounds = start..end.dec()
         }
 
         fm.top = fm.ascent
@@ -119,6 +129,7 @@ class HeaderSpan(
             }
         }
     }
+
     private fun Canvas.drawFontLines(
         top:Int,
         bottom: Int,
@@ -128,9 +139,8 @@ class HeaderSpan(
         drawLine(0f, top + 0f, width + 0f, top + 0f, Paint().apply { color = Color.BLUE })
         drawLine(0f, bottom + 0f, width + 0f, bottom + 0f, Paint().apply { color = Color.GREEN })
         drawLine(0f, lineBaseLine + 0f, width + 0f, lineBaseLine + 0f, Paint().apply { color = Color.RED })
-        //drawLine(0f, lineBaseLine + paint.ascent(), width + 0f, lineBaseLine + paint.ascent(), Paint().apply { color = Color.CYAN })
-        //drawLine(0f, lineBaseLine + paint.descent(), width + 0f, lineBaseLine + paint.descent(), Paint().apply { color = Color.CYAN })
     }
+
     private inline fun Paint.forLine(block: () -> Unit) {
         val oldColor = color
         val oldStyle = style
