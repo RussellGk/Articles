@@ -6,9 +6,7 @@ import android.graphics.*
 import android.os.Parcel
 import android.os.Parcelable
 import android.text.Spannable
-import android.util.Log
 import android.view.*
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -34,7 +32,7 @@ import kotlin.math.hypot
 class MarkdownImageView private constructor(
     context: Context,
     fontSize: Float
-) : FrameLayout(context, null, 0), IMarkdownView {
+) : ViewGroup(context, null, 0), IMarkdownView {
 
     override var fontSize: Float = fontSize
         set(value) {
@@ -48,36 +46,26 @@ class MarkdownImageView private constructor(
 
     //views
     private lateinit var imageUrl: String
-
     private lateinit var imageTitle: CharSequence
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val ivImage: ImageView
-
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val tvTitle: MarkdownTextView
-
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var tvAlt: TextView? = null
-
     @Px
     private val titleTopMargin: Int = context.dpToIntPx(8)
-
     @Px
     private val titlePadding: Int = context.dpToIntPx(56)
-
     @Px
     private val cornerRadius: Float = context.dpToPx(4)
-
     @ColorInt
     private val colorSurface: Int = context.attrValue(R.attr.colorSurface)
-
     @ColorInt
     private val colorOnSurface: Int = context.attrValue(R.attr.colorOnSurface)
-
     @ColorInt
     private val colorOnBackground: Int = context.attrValue(R.attr.colorOnBackground)
-
     @ColorInt
     private var lineColor: Int = context.getColor(R.color.color_divider)
 
@@ -89,6 +77,9 @@ class MarkdownImageView private constructor(
     }
 
     init {
+        //set id for view
+        id = generateViewId()
+
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         ivImage = ImageView(context).apply {
             scaleType = ImageView.ScaleType.CENTER_CROP
@@ -190,7 +181,6 @@ class MarkdownImageView private constructor(
             right,
             ivImage.measuredHeight
         )
-        super.onLayout(changed,l,t,r,b)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)

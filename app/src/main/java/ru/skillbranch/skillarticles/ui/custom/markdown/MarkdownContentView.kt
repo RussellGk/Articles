@@ -170,6 +170,7 @@ class MarkdownContentView @JvmOverloads constructor(
         children.forEach{
             if (it !is MarkdownTextView) it.saveHierarchyState(layoutManager.container)
         }
+        //save only MarkdownContentView
         dispatchFreezeSelfOnly(container)
     }
 
@@ -219,10 +220,10 @@ class MarkdownContentView @JvmOverloads constructor(
 
         companion object CREATOR : Parcelable.Creator<LayoutManager> {
             override fun createFromParcel(parcel: Parcel): LayoutManager  = LayoutManager(parcel)
-
             override fun newArray(size: Int): Array<LayoutManager?> = arrayOfNulls(size)
         }
     }
+
     private class SavedState: BaseSavedState, Parcelable {
         var layout: LayoutManager = LayoutManager()
         constructor(superState: Parcelable?): super(superState){}
