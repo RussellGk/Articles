@@ -9,8 +9,8 @@ import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
 import ru.skillbranch.skillarticles.extensions.*
-import ru.skillbranch.skillarticles.ui.custom.markdown.MarkdownElement
-import ru.skillbranch.skillarticles.ui.custom.markdown.clearContent
+import ru.skillbranch.skillarticles.repositories.MarkdownElement
+import ru.skillbranch.skillarticles.repositories.clearContent
 
 class ArticleViewModel(private val articleId: String, savedStateHandle: SavedStateHandle) :
     BaseViewModel<ArticleState>(ArticleState(), savedStateHandle),

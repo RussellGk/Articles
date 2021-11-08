@@ -14,6 +14,7 @@ import androidx.core.view.children
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.groupByBounds
 import ru.skillbranch.skillarticles.extensions.setPaddingOptionally
+import ru.skillbranch.skillarticles.repositories.MarkdownElement
 import kotlin.properties.Delegates
 
 class MarkdownContentView @JvmOverloads constructor(

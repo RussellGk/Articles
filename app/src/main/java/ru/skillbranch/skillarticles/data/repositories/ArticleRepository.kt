@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import ru.skillbranch.skillarticles.data.*
-import ru.skillbranch.skillarticles.ui.custom.markdown.MarkdownElement
-import ru.skillbranch.skillarticles.ui.custom.markdown.MarkdownParser
+import ru.skillbranch.skillarticles.repositories.MarkdownElement
+import ru.skillbranch.skillarticles.repositories.MarkdownParser
 
 object ArticleRepository : IArticleRepository {
     private val local = LocalDataHolder
